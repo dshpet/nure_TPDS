@@ -1,0 +1,37 @@
+sequential
+average over 100 iterations is 0.00171318334355 seconds for 256 array size
+average over 100 iterations is 0.00341610298259 seconds for 512 array size
+average over 100 iterations is 0.00681296151923 seconds for 1024 array size
+average over 100 iterations is 0.014260134446 seconds for 2048 array size
+average over 100 iterations is 0.0283393711001 seconds for 4096 array size
+average over 100 iterations is 0.0568613506094 seconds for 8192 array size
+
+Blelloch
+average over 50 iterations is 0.187514887717 seconds for 64 array size
+average over 50 iterations is 0.388783567125 seconds for 128 array size
+average over 50 iterations is 0.77597412178 seconds for 256 array size
+average over 50 iterations is 1.5342348002 seconds for 512 array size
+average over 50 iterations is 3.19423462059 seconds for 1024 array size
+average over 50 iterations is 6.83666768306 seconds for 2048 array size
+average over 50 iterations is 13.5054545175 seconds for 4096 array size
+average over 50 iterations is 28.5321717956 seconds for 8192 array size
+
+Every operation - single tread - supernaive
+average over 50 iterations is 0.098861712405 seconds for 64 array size
+average over 50 iterations is 0.209890191191 seconds for 128 array size
+average over 50 iterations is 0.466445597876 seconds for 256 array size
+average over 50 iterations is 0.465812669431 seconds for 256 array size
+average over 50 iterations is 1.11911071843 seconds for 512 array size
+average over 50 iterations is 2.93482376578 seconds for 1024 array size
+average over 50 iterations is 9.63437391616 seconds for 2048 array size
+average over 50 iterations is 31.954199074 seconds for 4096 array size
+
+Naive - Spellsomething
+average over 50 iterations is 0.553502767137 seconds for 64 array size
+average over 50 iterations is 1.41540077414 seconds for 128 array size
+average over 50 iterations is 3.86561902754 seconds for 256 array size
+average over 50 iterations is 3.86339180366 seconds for 256 array size
+average over 50 iterations is 10.3229102563 seconds for 512 array size
+average over 50 iterations is 16.6154112944 seconds for 1024 array size
+average over 50 iterations is 33.5872930206 seconds for 2048 array size
+average over 50 iterations is 77.4044913116 seconds for 4096 array size

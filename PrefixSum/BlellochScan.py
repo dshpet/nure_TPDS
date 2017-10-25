@@ -11,6 +11,7 @@ https://www.mimuw.edu.pl/~ps209291/kgkp/slides/scan.pdf
 
 import threading
 import math
+import TestFunction
 
 test_data = [1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -98,4 +99,13 @@ def scan(num_list):
 	return out
 
 result = scan(test_data)
-print(result)
+# print(result)
+
+TestFunction.Test(scan, 64)
+TestFunction.Test(scan, 128)
+TestFunction.Test(scan, 256)
+TestFunction.Test(scan, 512)
+TestFunction.Test(scan, 1024)
+TestFunction.Test(scan, 2048)
+TestFunction.Test(scan, 4096)
+TestFunction.Test(scan, 8192)

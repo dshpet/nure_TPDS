@@ -8,6 +8,8 @@ http://people.cs.vt.edu/yongcao/teaching/cs5234/spring2013/slides/Lecture10.pdf
 import threading
 import math
 
+import TestFunction
+
 # test_data = [2,6,2,3,5]
 test_data = [3, 1, 7, 0, 4, 1, 6, 3]
 
@@ -30,7 +32,7 @@ def prefixSum(num_list):
 
 	size = len(num_list)
 	iterations = int(math.log(size, 2)) # not sure if base 2
-	print(str(iterations))
+	# print(str(iterations))
 	stride = 1
 
 	for iteration in range(0, iterations):
@@ -47,9 +49,19 @@ def prefixSum(num_list):
 
 		stride *= 2
 		current_list = list(out)
-		print(out)
+		# print(out)
 
 	return out
 
 result = prefixSum(test_data)
-print(result)
+# print(result)
+
+TestFunction.Test(prefixSum, 64)
+TestFunction.Test(prefixSum, 128)
+TestFunction.Test(prefixSum, 256)
+TestFunction.Test(prefixSum, 256)
+TestFunction.Test(prefixSum, 512)
+TestFunction.Test(prefixSum, 1024)
+TestFunction.Test(prefixSum, 2048)
+TestFunction.Test(prefixSum, 4096)
+TestFunction.Test(prefixSum, 8192)

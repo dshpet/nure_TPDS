@@ -7,6 +7,7 @@ http://people.cs.vt.edu/yongcao/teaching/cs5234/spring2013/slides/Lecture10.pdf
 
 import threading
 # look maybe multiprocessing lib
+import TestFunction
 
 test_data = [2,6,2,3,5]
 
@@ -42,4 +43,15 @@ def prefixSum(num_list):
 	return out
 
 result = prefixSum(test_data)
-print(result)
+# print(result)
+
+
+TestFunction.Test(prefixSum, 64)
+TestFunction.Test(prefixSum, 128)
+TestFunction.Test(prefixSum, 256)
+TestFunction.Test(prefixSum, 256)
+TestFunction.Test(prefixSum, 512)
+TestFunction.Test(prefixSum, 1024)
+TestFunction.Test(prefixSum, 2048)
+TestFunction.Test(prefixSum, 4096)
+TestFunction.Test(prefixSum, 8192)
