@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{99283b0d-6c40-4d63-a3ac-d6802cf4b3a0}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>PrefixSumParallelNaive.py</StartupFile>
+    <StartupFile>BlellochScan.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,6 +19,9 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BlellochScan.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PrefixSumParallelExtraNaive.py" />
     <Compile Include="PrefixSumParallelNaive.py" />
     <Compile Include="PrefixSumSequential.py" />
