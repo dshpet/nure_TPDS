@@ -36,15 +36,18 @@ std::vector<std::pair<std::string, size_t>> MapReduce(
     Reducer &&                         _ReduceFunction
   )
 {
-  std::vector<std::pair<std::string, size_t>> temp();
+  std::vector<std::pair<std::string, size_t>> temp;
 
   // TODO make parallel blocks for each stage
+  auto threadsCount = std::thread::hardware_concurrency();
+  auto size = std::distance(_Data.begin(), _Data.end());
 
   // Map
-  for (auto && item : _Data)
-  {
-    temp.push_back(_MapFunction(item.first, item.second));
-  }
+
+  // todo make blocks and threads
+  std::vector<std::pair<std::string, size_t>> MapperResults = _MapFunction(_Data.begin(), _Data.end());
+  // todo write to file or check vector for concurent usage
+  temp.push_back(MapperResults);
 
   // Sort
   std::sort(temp.begin(), temp.end());

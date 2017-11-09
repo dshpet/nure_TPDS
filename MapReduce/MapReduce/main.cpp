@@ -9,9 +9,20 @@
 
 #include "MapReduce.h"
 
-std::vector<std::string> MapWords()
+std::vector<std::pair<std::string, size_t>> MapWords(
+    std::map<std::string, std::string>::iterator _DataBegin, // should get a chunk of global data
+    std::map<std::string, std::string>::iterator _DataEnd
+  )
 {
-  return std::vector<std::string>();
+  std::vector<std::pair<std::string, size_t>> Intermediate(std::distance(_DataBegin, _DataEnd));
+  auto It = _DataBegin;
+  
+  while (It != _DataEnd)
+  {
+    // count
+  }
+
+  return Intermediate;
 }
 
 std::vector<std::string> ReduceWords()
