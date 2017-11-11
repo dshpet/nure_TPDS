@@ -5,6 +5,7 @@
 #include <functional>
 #include <thread>
 #include <algorithm>
+#include <mutex>
 
 //
 // Helpers
@@ -14,9 +15,6 @@ class ThreadGroup :
   public std::vector<std::thread>
 {
 public:
-  ThreadGroup() = default;
-  ~ThreadGroup() { JoinAll(); };
-
   void JoinAll()
   {
     for (auto && t : *this)
@@ -24,36 +22,75 @@ public:
   }
 };
 
+template<class F>
+struct return_type_of;
+
+// function pointer
+template<class R, class... Args>
+struct return_type_of<R(*)(Args...)> : public return_type_of<R(Args...)>
+{};
+
+template<class R, class... Args>
+struct return_type_of<R(&)(Args...)> : public return_type_of<R(Args...)>
+{};
+
+template<class R, class... Args>
+struct return_type_of<R(Args...)>
+{
+  using type = R;
+};
+
 //
 // Algoritm
 //
 
 // Not very generic. Main purpose to separate algorithm and actual functions (and not to pass std::function)
-template <typename Mapper, typename Reducer>
-std::vector<std::pair<std::string, size_t>> MapReduce(
-    std::map<std::string, std::string> _Data, // should also be template
-    Mapper  &&                         _MapFunction,
-    Reducer &&                         _ReduceFunction
+template <typename DataSource, typename Mapper, typename Reducer>
+typename return_type_of<Reducer>::type MapReduce(
+    const DataSource & _Data, // should also be template
+    Mapper  &&         _MapFunction,
+    Reducer &&         _ReduceFunction
   )
 {
-  std::vector<std::pair<std::string, size_t>> temp;
+  using MapResult = typename return_type_of<Mapper>::type;
+  std::vector<MapResult> results;
 
-  // TODO make parallel blocks for each stage
-  auto threadsCount = std::thread::hardware_concurrency();
+  ThreadGroup threads;
+  std::mutex mutex;
+
   auto size = std::distance(_Data.begin(), _Data.end());
+  auto threadsCount = std::thread::hardware_concurrency();
+  size_t chunkSize = size / threadsCount;
 
   // Map
+  auto chunkBegin = _Data.begin();
+  while (chunkBegin != _Data.end())
+  {
+          auto   chunkEnd         = chunkBegin;
+    const size_t remainingData    = std::distance(chunkBegin, _Data.end());
+    const size_t currentChunkSize = std::min(chunkSize, remainingData);
 
-  // todo make blocks and threads
-  std::vector<std::pair<std::string, size_t>> MapperResults = _MapFunction(_Data.begin(), _Data.end());
-  // todo write to file or check vector for concurent usage
-  temp.push_back(MapperResults);
+    std::advance(chunkEnd, currentChunkSize);
+
+    threads.emplace_back(
+        std::thread(
+            [=, &results, &mutex]()
+            {
+              mutex.lock();
+              results.emplace_back(_MapFunction(chunkBegin, chunkEnd));
+              mutex.unlock();
+            }
+          )
+      );
+
+    std::advance(chunkBegin, currentChunkSize);
+  }
+
+  threads.JoinAll();
 
   // Sort
-  std::sort(temp.begin(), temp.end());
+  std::sort(results.begin(), results.end());
 
   // Reduce
-  
-
-  return temp;
+  return _ReduceFunction(results);
 }

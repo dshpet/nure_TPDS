@@ -6,28 +6,39 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 
 #include "MapReduce.h"
 
-std::vector<std::pair<std::string, size_t>> MapWords(
-    std::map<std::string, std::string>::iterator _DataBegin, // should get a chunk of global data
-    std::map<std::string, std::string>::iterator _DataEnd
+using MapResult    = std::map<std::string, size_t>;
+using ReduceResult = std::map<std::string, size_t>;
+using DataSource   = std::vector<std::string>;
+
+MapResult MapWords(
+    DataSource::const_iterator _DataBegin, // should get a chunk of global data
+    DataSource::const_iterator _DataEnd
   )
 {
-  std::vector<std::pair<std::string, size_t>> Intermediate(std::distance(_DataBegin, _DataEnd));
-  auto It = _DataBegin;
+  std::map<std::string, size_t> Intermediate;
   
-  while (It != _DataEnd)
-  {
-    // count
-  }
+  for (auto & it = _DataBegin; it != _DataEnd; ++it)
+    Intermediate[*it]++;
 
   return Intermediate;
 }
 
-std::vector<std::string> ReduceWords()
+ReduceResult ReduceWords(
+    const std::vector<MapResult> & _MapResults
+  )
 {
-  return std::vector<std::string>();
+  ReduceResult Result;
+
+  for (const auto & mapResult : _MapResults)
+    for (const auto pair : mapResult)
+      Result[pair.first] += pair.second;
+
+  return Result;
 }
 
 void main()
@@ -35,8 +46,7 @@ void main()
   const std::vector<std::string> filenames = { "a.txt", "b.txt", "c.txt" };
   const std::string              folder    = "../Data/";
 
-  // key - filename, value - file content
-  std::map<std::string, std::string> Data;
+  DataSource Data;
 
   for (auto && filename : filenames)
   {
@@ -47,8 +57,33 @@ void main()
     buffer << fileStream.rdbuf();
     fileStream.close();
 
-    Data[filename] = buffer.str();
+    std::string word;
+    while (buffer >> word)
+    {
+      std::string::iterator lastchars = word.end() - (word.size() > 1 ? 1 : 0);
+      word.erase(
+        std::remove_if(
+          lastchars,
+          word.end(),
+          [](const char & c) -> bool
+          { 
+            const std::string stupidchars = ",.;!?";
+            return std::find(stupidchars.cbegin(), stupidchars.cend(), c) != stupidchars.end();
+          }
+        ),
+        word.end()
+      );
+
+      Data.push_back(word);
+    }
   }
 
   auto result = MapReduce(Data, MapWords, ReduceWords);
+
+  std::cout << "Word count results:\n";
+  for (const auto & pair : result)
+    std::cout << "  " << std::setw(10) << pair.first << " -> " << pair.second << "\n";
+
+  int WAIT;
+  std::cin >> WAIT;
 }
