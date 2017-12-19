@@ -13,10 +13,11 @@
 
 using MapResult    = std::map<std::string, size_t>;
 using ReduceResult = std::map<std::string, size_t>;
+using Accumulator  = ThreadSafeContainer<ReduceResult>;
 using DataSource   = std::vector<std::string>;
 
 MapResult MapWords(
-    DataSource::const_iterator _DataBegin, // should get a chunk of global data
+    DataSource::const_iterator _DataBegin,
     DataSource::const_iterator _DataEnd
   )
 {
@@ -28,17 +29,13 @@ MapResult MapWords(
   return Intermediate;
 }
 
-ReduceResult ReduceWords(
-    const std::vector<MapResult> & _MapResults
+void ReduceWords(
+    Accumulator     & Accumulator,
+    const MapResult & _MapResult
   )
 {
-  ReduceResult Result;
-
-  for (const auto & mapResult : _MapResults)
-    for (const auto pair : mapResult)
-      Result[pair.first] += pair.second;
-
-  return Result;
+  for (const auto pair : _MapResult)
+    Accumulator.Set(pair.first, Accumulator.Get(pair.first) + pair.second);
 }
 
 void main()
@@ -78,10 +75,12 @@ void main()
     }
   }
 
-  auto result = MapReduce(Data, MapWords, ReduceWords);
+  ReduceResult reduseResult;
+  Accumulator result(&reduseResult);
+  MapReduce(Data, MapWords, ReduceWords, result);
 
   std::cout << "Word count results:\n";
-  for (const auto & pair : result)
+  for (const auto & pair : result.Raw())
     std::cout << "  " << std::setw(10) << pair.first << " -> " << pair.second << "\n";
 
   int WAIT;

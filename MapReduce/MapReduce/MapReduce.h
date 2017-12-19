@@ -22,6 +22,34 @@ public:
   }
 };
 
+template<typename Container>
+class ThreadSafeContainer
+{
+public:
+  ThreadSafeContainer(Container * _Container) : m_Container(_Container), m_Lock() {};
+
+  void Set(const typename Container::key_type & _Key, const typename Container::mapped_type & _Value)
+  {
+    m_Lock.lock();
+    (*m_Container.get())[_Key] = _Value;
+    m_Lock.unlock();
+  }
+
+  typename Container::mapped_type Get(const typename Container::key_type & _Key) const
+  {
+    return (*m_Container.get())[_Key];
+  }
+
+  const Container & Raw()
+  {
+    return (*m_Container.get());
+  }
+
+private:
+  std::mutex                 m_Lock;
+  std::shared_ptr<Container> m_Container;
+};
+
 template<class F>
 struct return_type_of;
 
@@ -40,16 +68,12 @@ struct return_type_of<R(Args...)>
   using type = R;
 };
 
-//
-// Algoritm
-//
-
-// Not very generic. Main purpose to separate algorithm and actual functions (and not to pass std::function)
-template <typename DataSource, typename Mapper, typename Reducer>
-typename return_type_of<Reducer>::type MapReduce(
-    const DataSource & _Data, // should also be template
+template <typename DataSource, typename Mapper, typename Reducer, typename Accumulator>
+Accumulator & MapReduce(
+    const DataSource & _Data,
     Mapper  &&         _MapFunction,
-    Reducer &&         _ReduceFunction
+    Reducer &&         _ReduceFunction,
+    Accumulator &      _Accumulator
   )
 {
   using MapResult = typename return_type_of<Mapper>::type;
@@ -92,5 +116,21 @@ typename return_type_of<Reducer>::type MapReduce(
   std::sort(results.begin(), results.end());
 
   // Reduce
-  return _ReduceFunction(results);
+  threads.clear();
+
+  for (auto mapResult : results)
+  {
+    threads.emplace_back(
+        std::thread(
+            [=, &_Accumulator]()
+            {
+              _ReduceFunction(_Accumulator, mapResult);
+            }
+          )
+      );
+  }
+
+  threads.JoinAll();
+
+  return _Accumulator;
 }
